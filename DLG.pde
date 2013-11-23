@@ -1,30 +1,30 @@
 /* dlg3 program */
 
 // outputs
-#define ONFET      1
-#define CCFL      2
-#define CHARGE123  3
-#define DRAIN3   4
-#define DRAIN2    6
-#define DRAIN1     7
-#define BOOST      9
+#define ONFET      1  // FIX/CHECK THIS
+#define CCFL      2  // FIX/CHECK THIS
+#define CHARGE123  3  // FIX/CHECK THIS
+#define DRAIN3   4  // FIX/CHECK THIS
+#define DRAIN2    6  // FIX/CHECK THIS
+#define DRAIN1     7  // FIX/CHECK THIS
+#define BOOST      9  // FIX/CHECK THIS
 
 // inputs
-#define B1P     8
-#define B2P      9
-#define BATTERY      10
-#define BUTTON_SENSE 11
-#define JACK_SENSE 12
-#define CCFL_SENSE 13
-#define B1THERM    12 // PHF too many 12s! 
-#define B2THERM    12
-#define B3THERM    12
+#define B1P     8  // FIX/CHECK THIS
+#define B2P      9  // FIX/CHECK THIS
+#define BATTERY      10  // FIX/CHECK THIS
+#define BUTTON_SENSE 11  // FIX/CHECK THIS
+#define JACK_SENSE 12  // FIX/CHECK THIS
+#define CCFL_SENSE 13  // FIX/CHECK THIS
+#define B1THERM    12  // FIX/CHECK THIS
+#define B2THERM    12  // FIX/CHECK THIS
+#define B3THERM    12  // FIX/CHECK THIS
 
 // consts
-#define FULL  4.17 // volts at which charging stops
+#define FULL  4.18 // volts at which charging stops
 #define EMPTY 2.9 // volts at which using battery stops 
 
-#define MODE_COUNT 2  // 0 when on, 1 and 2 are modes, then OFF 
+#define MODE_COUNT 3  // 0 when on?, 1 and 2 are modes, then OFF 
 
 #define MODE_0_RATE 1000 // timer counts of a period of lightness
 #define MODE_0_PWM  1000 // how many of those counts are "on"
@@ -49,20 +49,18 @@
 int mode = 0;
 int brightCentage; // 0 to 100, like percentage of full available brightness
 boolean lampOn = false;
-boolean charging = false;
+boolean charging = false;  // 
+boolean batteryFull = false;  // true if ALL of the batteries are >= FULL
 boolean batteryDead = false;  // true if one of the batteries is below EMPTY
-boolean batteryLow = false;  // true if one of the batteries is below EMPTY
-boolean batteryHealthy = false;  // true if one of the batteries is below EMPTY
-boolean batteryHot = false;  // true if one of the batteries is TEMPERATURE_MAX
-unsigned long lastWheelCharge = 0;
-unsigned long lastButton = 0;  // the last time the button was pressed
-unsigned cell1,cell2,cell3;
-unsigned cellTemp1,cellTemp2,cellTemp3;
+boolean batteryLow = false;  // true if one of the batteries is below BATT_LOW
+boolean batteryHot = false;  // true if one of the batteries is > TEMPERATURE_MAX
+unsigned long timeNow,lastWheelCharge, lastButton = 0;  // 
+float cell1,cell2,cell3;
+float cellTemp1,cellTemp2,cellTemp3;
 
 void setup() {
-  // brain wakes up, turns on ONFET to stay on
   pinMode(ONFET,OUTPUT);
-  digitalWrite(ONFET,HIGH);
+  digitalWrite(ONFET,HIGH);  // brain wakes up, turns on ONFET to stay on
 
   pinMode(BOOST, OUTPUT);
   pinMode(CHARGE123, OUTPUT);
@@ -108,6 +106,7 @@ void updateCharging () {
 }
 
 void balanceCells () {
+  if (charging) {
     // if cell1 or cell2 is higher than cell3, discharge same
     if (cell1 > cell3)
       discharge(CELL1);
@@ -129,8 +128,9 @@ void getCellVoltages()  {
   cell2 = (analogRead(B2P) / B2P_DIV) - cell1;  
   cell3 = (analogRead(BATTERY) / BATTERY_DIV) - cell1 - cell2;  
   batteryDead = ((cell1 <= EMPTY) || (cell2 <= EMPTY) || (cell3 <= EMPTY));
-  batteryHealthy = ((cell1 >=  BATT_LOW || (cell2 >= BATT_LOW ) || (cell3 >= BATT_LOW ));
+// healthy is the opposite of batteryLow  batteryHealthy = ((cell1 >=  BATT_LOW && (cell2 >= BATT_LOW ) && (cell3 >= BATT_LOW ));
   batteryLow = ((cell1 <  BATT_LOW || (cell2 < BATT_LOW ) || (cell3 < BATT_LOW ));
+  batteryFull = ((cell1 >= FULL) && (cell2 >= FULL) && (cell3 >= FULL ));
 }
 
 void getCellTemps()  {
@@ -197,15 +197,16 @@ void intHandler() {
   }
 }
 
+void getJackActivity() {
+}
+
 void turnOff() {
   digitalWrite(ONFET, LOW);
+  
 }
 
 void charge(int pin) { 
   charging = true; 
 
-}
-
-void discharge(int pin) {
 }
 
