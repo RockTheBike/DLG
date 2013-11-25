@@ -24,7 +24,7 @@
 #define FULL  4.18 // volts at which charging stops
 #define EMPTY 2.9 // volts at which using battery stops 
 
-#define MODE_COUNT 3  // 0 when on?, 1 and 2 are modes, then OFF 
+#define MODE_COUNT 3  // 0 when off, 1 is on, 2 and 3 are modes, then OFF 
 
 #define MODE_0_RATE 1000 // timer counts of a period of lightness
 #define MODE_0_PWM  1000 // how many of those counts are "on"
@@ -44,6 +44,7 @@
 #define THERM_DIV       1  // divide adc value by this to get Degrees F
 #define TEMPERATURE_MAX 100  // max temperature in Degrees F
 #define BUTTON_TIME     200  // minimum time since last button release
+#define TURNOFF_TIME    1000  // time to hold down button to turn off
 
 // vars
 int mode = 0;
@@ -54,7 +55,7 @@ boolean batteryFull = false;  // true if ALL of the batteries are >= FULL
 boolean batteryDead = false;  // true if one of the batteries is below EMPTY
 boolean batteryLow = false;  // true if one of the batteries is below BATT_LOW
 boolean batteryHot = false;  // true if one of the batteries is > TEMPERATURE_MAX
-unsigned long timeNow,lastWheelCharge, lastButton = 0;  // 
+unsigned long timeNow,lastWheelCharge, lastButtonUp, lastButtonDown = 0;  // 
 float cell1,cell2,cell3;
 float cellTemp1,cellTemp2,cellTemp3;
 
@@ -72,7 +73,7 @@ void setup() {
   getCellVoltages(); // sets batteryDead status
   getCellTemps();  // sets batteryHot status
 
-  attachInterrupt(0,intHandler,CHANGE); // watch the last time the button was released
+  attachInterrupt(0,intHandler,CHANGE); // watch the last time the button state changed
 
   lastWheelCharge = millis();
 }
@@ -85,7 +86,7 @@ void loop () {
   updateBrightness();  // sets ccfl pwm level  
   updateCharging();  // update charging pwm levels based on cell Volts and Temps
   
-if (button has been held down long enough to do a turn off){
+if ((timenow - lastButtonDown > TURNOFF_TIME) && (lastButtonDown > lastButtonUp)) {
   turnoOff(); //  customer is trying to turn light off.
 // set the time this started.
 // 
@@ -94,7 +95,7 @@ if (button has been held down long enough to do a turn off){
 if (batteryDead) {
   turnOff();
   } else if (batteryLow) {
-     mode = 3; //Emergency / Get you home mode. 
+     mode = 9; //Emergency / Get you home mode. 
   } 
    
 }
@@ -187,13 +188,15 @@ void updateBrightness () {
 
 void intHandler() {
   // if INT0 is triggered, switch to next mode, which might be "off"
-  if (digitalRead(BUTTON_SENSE) { // button just got pressed
-    if ((millis() - lastButton) > BUTTON_TIME) {  // it was not a bounce
+  timeNow = millis();
+  if (!digitalRead(BUTTON_SENSE) { // button just got pressed
+    if ((timeNow - lastButtonUp) > BUTTON_TIME) {  // it was not a bounce
       mode = (mode+1) % MODE_COUNT; // go to next mode
-      if (mode == 0) mode = (mode+1);
+      // if (mode == 0) mode = 1;  // this line disables turn-off except by holddown
+      lastButtonDown = timeNow;
     }
   } else { // button was released
-    lastButton = millis(); // count from release of button
+    lastButtonUp = timeNow;// count from release of button
   }
 }
 
@@ -202,7 +205,6 @@ void getJackActivity() {
 
 void turnOff() {
   digitalWrite(ONFET, LOW);
-  
 }
 
 void charge(int pin) { 
