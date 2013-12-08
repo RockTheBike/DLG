@@ -1,58 +1,52 @@
 /* dlg3 program */
 
 // outputs
-#define ONFET      1  // FIX/CHECK THIS
-#define CCFL      2  // FIX/CHECK THIS
+#define ONFET      4  // 4 is PD4
+#define CCFL       5  // 10 originally, 5 now
 #define CHARGE123  3  // FIX/CHECK THIS
-#define DRAIN3   4  // FIX/CHECK THIS
-#define DRAIN2    6  // FIX/CHECK THIS
+#define DRAIN3    40  // FIX/CHECK THIS
+#define DRAIN2     6  // FIX/CHECK THIS
 #define DRAIN1     7  // FIX/CHECK THIS
 #define BOOST      9  // FIX/CHECK THIS
+#define LED        7  // 7 is PD7
 
 // inputs
-#define B1P     8  // FIX/CHECK THIS
-#define B2P      9  // FIX/CHECK THIS
-#define BATTERY      10  // FIX/CHECK THIS
-#define BUTTON_SENSE 11  // FIX/CHECK THIS
-#define JACK_SENSE 12  // FIX/CHECK THIS
-#define CCFL_SENSE 13  // FIX/CHECK THIS
-#define B1THERM    12  // FIX/CHECK THIS
-#define B2THERM    12  // FIX/CHECK THIS
-#define B3THERM    12  // FIX/CHECK THIS
+#define B1P        A3  // PC3/ADC3
+#define B2P        A4  // PC4/ADC4
+#define BATTERY    A5  // PC5/ADC5
+#define BUTTON_SENSE 2 // PD2/INT0
+#define JACK_SENSE 21  // A7 = 21
+#define CCFL_SENSE 20  // A6 = 20 
+#define B1THERM    A0  // PC0/A0
+#define B2THERM    A1  // PC1/A1
+#define B3THERM    A2  // PC2/A2
 
 // consts
-#define FULL  4.18 // volts at which charging stops
-#define EMPTY 2.9 // volts at which using battery stops 
-
-#define MODE_COUNT 3  // 0 when off, 1 is on, 2 and 3 are modes, then OFF 
-
-#define MODE_0_RATE 1000 // timer counts of a period of lightness
-#define MODE_0_PWM  1000 // how many of those counts are "on"
-#define MODE_1_RATE 1000 // mode 1 will perhaps be a fader mode
-
-#define MODE_1_PWM   500
-#define MODE_2_RATE  400
-#define MODE_2_PWM   300
-
-#define MAX_BRIGHTNESS  175 // adc value of full CCFL power
-#define MIN_BRIGHTNESS  145 // adc value of minimum CCFL power#define DESIRED_PERCENTAGE_BRIGHTNESS 0 
+#define BATT_FULL  4.18 // volts at which charging stops
+#define BATT_LOW 3.3  // volts below which battery is "low"
+#define BATT_EMPTY 2.9 // volts at which using battery stops 
+#define MAX_PWM 250
+#define DISCHARGE_PWM 254  // what analogWrite value for drain1,2,3 on
+#define MODE_COUNT 3  // 0 when off, 1 is full-on, 2 and 3 are modes, then OFF 
+#define MAX_BRIGHTNESS  500 // adc value of full CCFL power
+#define MIN_BRIGHTNESS  105 // adc value of minimum CCFL power
 #define BRIGHTNESS_RANGE MAX_BRIGHTNESS - MIN_BRIGHTNESS
 #define B1P_DIV         186 // divide adc value by this to get volts at B1P
 #define B2P_DIV         121.79 // divisor for voltage at node B2P
 #define BATTERY_DIV     81.48  // divisor for voltage at node BATTERY
 #define JACK_PWR_DIV    33.49  // divisor for voltage at node JACK_PWR
 #define THERM_DIV       1  // divide adc value by this to get Degrees F
-#define TEMPERATURE_MAX 100  // max temperature in Degrees F
+#define TEMPERATURE_MAX 90  // max temperature in Degrees F
+#define TEMPERATURE_DANGER 105  // max temperature in Degrees F
 #define BUTTON_TIME     200  // minimum time since last button release
-#define TURNOFF_TIME    1000  // time to hold down button to turn off
+#define TURNOFF_TIME    700  // time to hold down button to turn off
 
 // vars
 int mode = 0;
 int brightCentage; // 0 to 100, like percentage of full available brightness
-boolean lampOn = false;
 boolean charging = false;  // 
-boolean batteryFull = false;  // true if ALL of the batteries are >= FULL
-boolean batteryDead = false;  // true if one of the batteries is below EMPTY
+boolean batteryFull = false;  // true if ALL of the batteries are >= BATT_FULL
+boolean batteryDead = false;  // true if one of the batteries is below BATT_EMPTY
 boolean batteryLow = false;  // true if one of the batteries is below BATT_LOW
 boolean batteryHot = false;  // true if one of the batteries is > TEMPERATURE_MAX
 unsigned long timeNow,lastWheelCharge, lastButtonUp, lastButtonDown = 0;  // 
@@ -86,8 +80,8 @@ void loop () {
   updateBrightness();  // sets ccfl pwm level  
   updateCharging();  // update charging pwm levels based on cell Volts and Temps
   
-if ((timenow - lastButtonDown > TURNOFF_TIME) && (lastButtonDown > lastButtonUp)) {
-  turnoOff(); //  customer is trying to turn light off.
+if ((timeNow - lastButtonDown > TURNOFF_TIME) && (lastButtonDown > lastButtonUp)) {
+  turnOff(); //  customer is trying to turn light off.
 // set the time this started.
 // 
 }
@@ -110,28 +104,29 @@ void balanceCells () {
   if (charging) {
     // if cell1 or cell2 is higher than cell3, discharge same
     if (cell1 > cell3)
-      discharge(CELL1);
+      analogWrite(DRAIN1,DISCHARGE_PWM);
     if (cell2 > cell3)
-      discharge(CELL2);
+      analogWrite(DRAIN2,DISCHARGE_PWM);
 
     // If only cell3 is full, charge using C until cell1 or cell2 full
-    if (cell3 > FULL && cell1 < FULL && cell2 < FULL)
-      charge(C); // until cell1 or cell2 full
+    if (cell3 > BATT_FULL && cell1 < BATT_FULL && cell2 < BATT_FULL)
+      // charge(C); // until cell1 or cell2 full
 
     // if cell1 is higher than cell2, discharge cell1
     if (cell1 > cell2)
-      discharge(cell1);
+      analogWrite(DRAIN1,DISCHARGE_PWM);
     // some more logic goes here, but needs to be thought out fully
+  }
 }
 
 void getCellVoltages()  {
   cell1 = analogRead(B1P) / B1P_DIV;
   cell2 = (analogRead(B2P) / B2P_DIV) - cell1;  
   cell3 = (analogRead(BATTERY) / BATTERY_DIV) - cell1 - cell2;  
-  batteryDead = ((cell1 <= EMPTY) || (cell2 <= EMPTY) || (cell3 <= EMPTY));
+  batteryDead = ((cell1 <= BATT_EMPTY) || (cell2 <= BATT_EMPTY) || (cell3 <= BATT_EMPTY));
 // healthy is the opposite of batteryLow  batteryHealthy = ((cell1 >=  BATT_LOW && (cell2 >= BATT_LOW ) && (cell3 >= BATT_LOW ));
-  batteryLow = ((cell1 <  BATT_LOW || (cell2 < BATT_LOW ) || (cell3 < BATT_LOW ));
-  batteryFull = ((cell1 >= FULL) && (cell2 >= FULL) && (cell3 >= FULL ));
+  batteryLow = ((cell1 <  BATT_LOW) || (cell2 < BATT_LOW) || (cell3 < BATT_LOW ));
+  batteryFull = ((cell1 >= BATT_FULL) && (cell2 >= BATT_FULL) && (cell3 >= BATT_FULL ));
 }
 
 void getCellTemps()  {
@@ -144,6 +139,7 @@ void getCellTemps()  {
   if ((cellTemp1 >= TEMPERATURE_DANGER) || (cellTemp2 >= TEMPERATURE_DANGER) || (cellTemp3 >= TEMPERATURE_DANGER)) {
     digitalWrite (ONFET, LOW);  
   }
+}
 
 void updateBrightness () {
       switch (mode) {
@@ -157,7 +153,7 @@ void updateBrightness () {
       brightCentage=100; 
       break;
       
-    case 2:
+    /*case 2:
       //Customer wants light to pulse.
       
      //Pulse pseudocode: be on full brightness for first 200 ms
@@ -172,7 +168,7 @@ void updateBrightness () {
        brightCentage = blinkTimer % 100;
      }  else brightCentage = 100);
       break;
-      }
+      */}
  if (batteryLow && mode>0){     
     
          //Lub-Dup Pulse pseudocode: 
@@ -189,7 +185,7 @@ void updateBrightness () {
 void intHandler() {
   // if INT0 is triggered, switch to next mode, which might be "off"
   timeNow = millis();
-  if (!digitalRead(BUTTON_SENSE) { // button just got pressed
+  if (!digitalRead(BUTTON_SENSE)) { // button just got pressed
     if ((timeNow - lastButtonUp) > BUTTON_TIME) {  // it was not a bounce
       mode = (mode+1) % MODE_COUNT; // go to next mode
       // if (mode == 0) mode = 1;  // this line disables turn-off except by holddown
