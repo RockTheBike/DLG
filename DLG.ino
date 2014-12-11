@@ -2,12 +2,12 @@
 
 // outputs
 #define ONFET      4  // 4 is PD4
-#define CCFL       5  // 10 originally, 5 now
-#define CHARGE123  2  // FIX/CHECK THIS
-#define DRAIN3     3  // FIX/CHECK THIS
-#define DRAIN2     6  // FIX/CHECK THIS
-#define DRAIN1     8  // FIX/CHECK THIS
-#define BOOST      9  // FIX/CHECK THIS
+#define CCFL_PIN   5  // 10 originally, 5 now
+#define CHARGE123  9 // PB1/9 prototype
+#define DRAIN1     11 // PB3/11 prototype
+#define DRAIN2     3 // PD3/3
+#define DRAIN3     10 // PB2/10 prototype
+#define BOOST      6 // PD6/6 prototype
 #define LED        7  // 7 is PD7
 
 // inputs
