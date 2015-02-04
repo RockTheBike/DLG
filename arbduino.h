@@ -22,10 +22,10 @@ class RTBVoltageSensor : public RTBSensor {
 	}
 	virtual void setup() {
 		pinMode(_pin,INPUT);
-	}
+	};
 	virtual void sense() {
 		_voltage = analogRead(_pin) / _coeff;
-	}
+	};
 	float voltage() const {
 		return _voltage;
 	}
@@ -42,10 +42,10 @@ class RTBCurrentSensor : public RTBSensor {
 	}
 	virtual void setup() {
 		pinMode(_pin,INPUT);
-	}
+	};
 	virtual void sense() {
 		_current = ( analogRead(_pin) - _offset ) / _coeff;  // TODO:  flip signs? 
-	}
+	};
 	float current() const {
 		return _current;
 	}
@@ -98,7 +98,7 @@ class RTBRelay : public RTBActuator {
 	}
 	virtual void setup() {
 		pinMode(_pin,OUTPUT);
-	}
+	};
 	virtual void actuate() {
 		digitalWrite( _pin, _state );
 	};

@@ -1,6 +1,7 @@
 #define VERSION "Rock the Bike Cheap/Virtual Utility Box 0.0"
 
 #include "arbduino.h"
+#include <Adafruit_NeoPixel.h>
 
 #define VOLTCOEFF 13.179 // correct value for new blue arbduino v2
 #define AMPCOEFF 8.0682 // 583 - 512 = 71; 71 / 8.8 amps = 8.0682
@@ -10,8 +11,8 @@ RTBVoltageSensor battery_voltage( A0, VOLTCOEFF );
 RTBCurrentSensor pedal_current( A2, AMPCOEFF, AMPOFFSET );
 RTBCurrentSensor output_current( A3, AMPCOEFF, AMPOFFSET );
 
-RTBAddressableLedStrip ledstrip( 10, 6 );
-RTBAddressableLedStrip indicatorled( 1, 1 );
+RTBAddressableLedStrip ledstrip( 9, 6 );
+RTBAddressableLedStrip indicatorled( 10, 1 );
 RTBSafetyRelay safety_relay( 2, 14.3 );
 RTBRelay output_relay( 3 );
 
@@ -61,6 +62,12 @@ State* StartingState::next_state( WORLD_PARAMS ) {
 }
 void StartingState::set_outputs( WORLD_PARAMS ) {
 	// TODO
+	static const color_t colors[] = {
+	  Adafruit_NeoPixel::Color(0,0,255),
+	  Adafruit_NeoPixel::Color(0,255,0),
+	  Adafruit_NeoPixel::Color(255,0,0) };
+	indicatorled.setBrightness( 32 );
+	indicatorled.setPixelColor( 0, colors[now/1000%3] );
 }
 
 class HappyState : public State {
@@ -132,6 +139,7 @@ void setup() {
 	pedal_current.setup();
 	output_current.setup();
 	ledstrip.setup();
+	indicatorled.setup();
 	safety_relay.setup();
 	output_relay.setup();
 
@@ -156,6 +164,7 @@ void loop() {
 
 	// change the world
 	ledstrip.actuate();
+	indicatorled.actuate();
 	safety_relay.actuate();
 	output_relay.actuate();
 
