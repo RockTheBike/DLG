@@ -2,24 +2,6 @@
 
 #include "arbduino.h"
 
-class OutputRelay : public RTBActuator {
-  public:
-	OutputRelay( const uint8_t pin, float thresholdsetc, uint8_t state=LOW ) :
-	  _pin(pin), _thresholdsetc(thresholdsetc), _state(state) {
-	}
-	virtual void setup() {
-		pinMode(_pin,OUTPUT);
-	};
-	virtual void actuate() {
-		digitalWrite( _pin, _state );
-	};
-  private:
-	const uint8_t _pin;
-	const int _thresholdsetc;
-	uint8_t _state;
-};
-
-
 #define VOLTCOEFF 13.179 // correct value for new blue arbduino v2
 #define AMPCOEFF 8.0682 // 583 - 512 = 71; 71 / 8.8 amps = 8.0682
 #define AMPOFFSET 512.0 // when current sensor is at 0 amps this is the ADC value
@@ -31,7 +13,7 @@ RTBCurrentSensor output_current( A3, AMPCOEFF, AMPOFFSET );
 RTBAddressableLedStrip ledstrip( 10, 6 );
 RTBAddressableLedStrip indicatorled( 1, 1 );
 RTBSafetyRelay safety_relay( 2, 14.3 );
-OutputRelay output_relay( 3 );
+RTBRelay output_relay( 3 );
 
 
 
