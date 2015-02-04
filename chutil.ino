@@ -3,6 +3,20 @@
 #include "arbduino.h"
 
 class OutputRelay : public RTBActuator {
+  public:
+	OutputRelay( const uint8_t pin, float thresholdsetc, uint8_t state=LOW ) :
+	  _pin(pin), _thresholdsetc(thresholdsetc), _state(state) {
+	}
+	virtual void setup() {
+		pinMode(_pin,OUTPUT);
+	};
+	virtual void actuate() {
+		digitalWrite( _pin, _state );
+	};
+  private:
+	const uint8_t _pin;
+	const int _thresholdsetc;
+	uint8_t _state;
 };
 
 
@@ -17,7 +31,7 @@ RTBCurrentSensor output_current( A3, AMPCOEFF, AMPOFFSET );
 RTBAddressableLedStrip ledstrip( 10, 6 );
 RTBAddressableLedStrip indicatorled( 1, 1 );
 RTBSafetyRelay safety_relay( 2, 14.3 );
-//OutputRelay output_relay( 3, thresholds, etc );
+OutputRelay output_relay( 3 );
 
 
 
@@ -137,7 +151,7 @@ void setup() {
 	output_current.setup();
 	ledstrip.setup();
 	safety_relay.setup();
-	//output_relay.setup();
+	output_relay.setup();
 
 }
 
@@ -161,7 +175,7 @@ void loop() {
 	// change the world
 	ledstrip.actuate();
 	safety_relay.actuate();
-	//output_relay.actuate();
+	output_relay.actuate();
 
 	// occassionally say what we did
 	maybe_report( WORLD_VALUES );

@@ -93,8 +93,8 @@ class RTBAddressableLedStrip : public RTBActuator {
 
 class RTBSafetyRelay : public RTBActuator {
   public:
-	RTBSafetyRelay( const uint8_t pin, float thresholdsetc ) :
-	  _pin(pin), _thresholdsetc(thresholdsetc) {
+	RTBSafetyRelay( const uint8_t pin, float thresholdsetc, uint8_t state=LOW ) :
+	  _pin(pin), _thresholdsetc(thresholdsetc), _state(state) {
 	}
 	virtual void setup() {
 		pinMode(_pin,OUTPUT);
@@ -105,4 +105,5 @@ class RTBSafetyRelay : public RTBActuator {
   private:
 	const uint8_t _pin;
 	const int _thresholdsetc;
+	uint8_t _state;
 };
