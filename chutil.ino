@@ -63,11 +63,15 @@ State* StartingState::next_state( WORLD_PARAMS ) {
 void StartingState::set_outputs( WORLD_PARAMS ) {
 	// TODO
 	static const color_t colors[] = {
-	  Adafruit_NeoPixel::Color(0,0,255),
+	  Adafruit_NeoPixel::Color(255,0,0),
+	  Adafruit_NeoPixel::Color(255,255,0),
 	  Adafruit_NeoPixel::Color(0,255,0),
-	  Adafruit_NeoPixel::Color(255,0,0) };
-	indicatorled.setBrightness( 32 );
-	indicatorled.setPixelColor( 0, colors[now/1000%3] );
+	  Adafruit_NeoPixel::Color(0,255,255),
+	  Adafruit_NeoPixel::Color(0,0,255),
+	  Adafruit_NeoPixel::Color(255,0,255) };
+	indicatorled.setBrightness( 8 );
+#define NUM_COLORS (sizeof(colors)/sizeof(*colors))
+	indicatorled.setPixelColor( 0, colors[now/200%NUM_COLORS] );
 }
 
 class HappyState : public State {
