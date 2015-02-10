@@ -112,7 +112,7 @@ State* current_state = &starting_state;
 
 #define REPORT_INTERVAL 1000
 millitime_t next_report = 0;
-void report( millitime_t now, float pedal_voltage, float battery_voltage, float pedal_current, float output_current ) {
+void report( State* prev_state, State* next_state, millitime_t now, float pedal_voltage, float battery_voltage, float pedal_current, float output_current ) {
 	Serial.print( now/1000/60 );
 	Serial.print( ':' );
 	Serial.print( now/1000%60 );  // TODO "%02d"
@@ -126,9 +126,9 @@ void report( millitime_t now, float pedal_voltage, float battery_voltage, float 
 	Serial.print( output_current );
 	Serial.println( "A" );
 }
-void maybe_report( millitime_t now, float pedal_voltage, float battery_voltage, float pedal_current, float output_current ) {
+void maybe_report( State* prev_state, State* next_state, millitime_t now, float pedal_voltage, float battery_voltage, float pedal_current, float output_current ) {
 	if( now < next_report ) return;
-	report( WORLD_ARGS );
+	report( prev_state, next_state, WORLD_ARGS );
 	next_report += REPORT_INTERVAL + ( next_report ? 0 : now );
 }
 
@@ -173,7 +173,7 @@ void loop() {
 	output_relay.actuate();
 
 	// occassionally say what we did
-	maybe_report( WORLD_VALUES );
+	maybe_report( current_state, next_state, WORLD_VALUES );
 
 	current_state = next_state;
 
