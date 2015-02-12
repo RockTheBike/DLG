@@ -43,21 +43,22 @@ class State {
   public:
 	// a chance to claim control outside normal operation
 	virtual bool preempt( WORLD_PARAMS );
-	// one step of normal operation
-	virtual State* next_state( WORLD_PARAMS ) = 0;
+	// decide the next step based on the world, do any transition side effects if state differs
+	virtual State* transition( WORLD_PARAMS ) = 0;
 	// get ready to change the world
 	virtual void set_outputs( WORLD_PARAMS ) = 0;
-	// we might want leave_state and enter_state event handlers
+	virtual void enter_state( WORLD_PARAMS ) = 0;
 };
 bool State::preempt( WORLD_PARAMS ) {
 	return NULL;
 }
 
 class StartingState : public State {
-	State* next_state( WORLD_PARAMS );
+	State* transition( WORLD_PARAMS );
 	void set_outputs( WORLD_PARAMS );
+	void enter_state( WORLD_PARAMS );
 } starting_state;
-State* StartingState::next_state( WORLD_PARAMS ) {
+State* StartingState::transition( WORLD_PARAMS ) {
 	return this;  // TODO
 }
 void StartingState::set_outputs( WORLD_PARAMS ) {
@@ -73,39 +74,46 @@ void StartingState::set_outputs( WORLD_PARAMS ) {
 #define NUM_COLORS (sizeof(colors)/sizeof(*colors))
 	indicatorled.setPixelColor( 0, colors[now/200%NUM_COLORS] );
 }
+void StartingState::enter_state( WORLD_PARAMS ) {}
 
 class HappyState : public State {
-	State* next_state( WORLD_PARAMS );
+	State* transition( WORLD_PARAMS );
 	void set_outputs( WORLD_PARAMS );
+	void enter_state( WORLD_PARAMS );
 } happy_state;
-State* HappyState::next_state( WORLD_PARAMS ) {
+State* HappyState::transition( WORLD_PARAMS ) {
 	return this;  // TODO
 }
 void HappyState::set_outputs( WORLD_PARAMS ) {
 	// TODO
 }
+void HappyState::enter_state( WORLD_PARAMS ) {}
 
 class LowDangerState : public State {
-	State* next_state( WORLD_PARAMS );
+	State* transition( WORLD_PARAMS );
 	void set_outputs( WORLD_PARAMS );
+	void enter_state( WORLD_PARAMS );
 } low_danger_state;
-State* LowDangerState::next_state( WORLD_PARAMS ) {
+State* LowDangerState::transition( WORLD_PARAMS ) {
 	return this;  // TODO
 }
 void LowDangerState::set_outputs( WORLD_PARAMS ) {
 	// TODO
 }
+void LowDangerState::enter_state( WORLD_PARAMS ) {}
 
 class HighDangerState : public State {
-	State* next_state( WORLD_PARAMS );
+	State* transition( WORLD_PARAMS );
 	void set_outputs( WORLD_PARAMS );
+	void enter_state( WORLD_PARAMS );
 } high_danger_state;
-State* HighDangerState::next_state( WORLD_PARAMS ) {
+State* HighDangerState::transition( WORLD_PARAMS ) {
 	return this;  // TODO
 }
 void HighDangerState::set_outputs( WORLD_PARAMS ) {
 	// TODO
 }
+void HighDangerState::enter_state( WORLD_PARAMS ) {}
 
 State* current_state = &starting_state;
 
@@ -159,11 +167,11 @@ void loop() {
 	pedal_current.sense();
 	output_current.sense();
 
-	// decide what to do
-	State* next_state=NULL;
-	//TODO next_state = preempt_state( voltages, etc );
-	if( ! next_state )
-		next_state = current_state->next_state( WORLD_VALUES );
+	// decide what state to transition to
+	// (and let outgoing state relinquish stuff etc)
+	State* next_state = current_state->transition( WORLD_VALUES );
+	if( next_state != current_state )
+		next_state->enter_state( WORLD_VALUES );
 	next_state->set_outputs( WORLD_VALUES );
 
 	// change the world
