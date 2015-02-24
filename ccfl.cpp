@@ -63,3 +63,18 @@ void PidCcfl::refine_pwm_for_full_brightness() {
 	else
 		_pwm_for_full_brightness = new_pwm;
 }
+
+#ifdef SERIAL_INTERACT
+void PidCcfl::report( Stream& stream ) {
+	stream.print("actual_pat_current:");
+	stream.print(_actual_pat_current);
+	stream.print(" pwm_for_full_brightness:");
+	stream.print(_pwm_for_full_brightness);
+	stream.print(" pat_brightness:");
+	stream.print(_pat_brightness);
+	stream.print(" integrated_error:");
+	stream.print(_integrated_error);
+	stream.print(" prev_error:");
+	stream.print(_prev_error);
+}
+#endif

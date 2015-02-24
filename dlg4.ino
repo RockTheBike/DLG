@@ -31,7 +31,11 @@ void report( State* prev_state, State* next_state, WORLD_PARAMS ) {
 	Serial.print( now/1000/60 );
 	Serial.print( ':' );
 	Serial.print( now/1000%60 );  // TODO "%02d"
-	Serial.println( "   i'm alive" ); 
+#ifdef SERIAL_INTERACT
+	Serial.print( ' ' );
+	ccfl.report( Serial );
+#endif
+	Serial.println();
 }
 void maybe_report( State* prev_state, State* next_state, WORLD_PARAMS ) {
 	if( now < next_report ) return;

@@ -1,6 +1,8 @@
 #ifndef _INC_DLG4_H
 #define _INC_DLG4_H
 
+#include "config.h"
+
 #include "arbduino.h"
 
 #define WORLD_PARAMS \

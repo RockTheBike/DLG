@@ -1,7 +1,13 @@
 #ifndef _INC_CCFL_H
 #define _INC_CCFL_H
 
+#include "config.h"
+
 #include "arbduino.h"
+
+#ifdef SERIAL_INTERACT
+#include <stream>
+#endif
 
 class Ccfl : public RTBSensor, public RTBActuator {
   public:

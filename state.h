@@ -1,6 +1,8 @@
 #ifndef _INC_STATE_H
 #define _INC_STATE_H
 
+#include "config.h"
+
 #include "dlg4.h"
 
 class State {
