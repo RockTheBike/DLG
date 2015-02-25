@@ -1,3 +1,8 @@
-// Configure the build, much as I'd like to do with -D flags
+// These files configure the build
 
-#define SERIAL_INTERACT
+// The parameters to this build, describing the hardware, which
+// features to enable, etc:
+#include "input.h"
+
+// Work out implications from the input; impliment tools:
+#include "impli.h"

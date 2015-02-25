@@ -1,0 +1,4 @@
+// input.h.in is a template from which to create input.h.
+// input.h (not in source control) specifies the parameters of a build.
+
+#define SERIAL_INTERACT
