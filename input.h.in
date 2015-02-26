@@ -1,4 +1,25 @@
 // input.h.in is a template from which to create input.h.
 // input.h (not in source control) specifies the parameters of a build.
 
+// the hardware of the CCFL:
+#define CCFL_CURRENT_SENSE A6
+#define CCFL_PIN 5
+#define IDEAL_FULL_CURRENT 450
+#define INITIAL_PWM_FOR_FULL_BRIGHTNESS 80
+#define MAX_PWM 250
+#define MIN_PWM 1
+// tune the PID control system of the CCFL:
+#define KP 0.01
+#define KI 0.001
+#define KD 0.0
+// how many times to read the current (or maybe just how long we need to wait)
+#define READ_MULTITUDE 10
+
+
+// serial interaction
 #define SERIAL_INTERACT
+#define REPORT_INTERVAL 1000
+
+
+// development hacks and internal mucking about
+//#define ENABLE_PATTERN

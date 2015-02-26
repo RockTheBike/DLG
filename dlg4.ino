@@ -6,12 +6,7 @@
 
 
 // sensors and actuators
-#define IDEAL_FULL_CURRENT 450
-#define MAX_PWM 250
-#define KP 0.01
-#define KI 0.001
-#define KD 0.0
-PidCcfl ccfl( A6, 5, IDEAL_FULL_CURRENT, MAX_PWM, KP, KI, KD );
+PidCcfl ccfl( CCFL_CURRENT_SENSE, CCFL_PIN, IDEAL_FULL_CURRENT, MAX_PWM, KP, KI, KD );
 RTBButton button( 2 );
 RTBLed signal_led( 7 );
 RTBPowerLatch power_latch( 4 );
@@ -23,7 +18,6 @@ State* current_state = &starting_state;
 
 
 // reporting
-#define REPORT_INTERVAL 1000
 millitime_t next_report = 0;
 void report( State* prev_state, State* next_state, WORLD_PARAMS ) {
 	Serial.print( loopcount );
