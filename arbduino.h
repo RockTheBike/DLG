@@ -19,18 +19,10 @@ class RTBSensor {
 
 class RTBButton : public RTBSensor {
   public:
-	RTBButton( const uint8_t pin ) :
-	  _pin(pin) {
-	}
-	virtual void setup() {
-		pinMode(_pin,INPUT);
-	};
-	virtual void sense() {
-		_state = digitalRead(_pin);
-	};
-	bool state() const {
-		return _state;
-	}
+	RTBButton( uint8_t pin );
+	virtual void setup();
+	virtual void sense();
+	bool state() const;
   private:
 	const uint8_t _pin;
 	bool _state;
@@ -38,18 +30,10 @@ class RTBButton : public RTBSensor {
 
 class RTBVoltageSensor : public RTBSensor {
   public:
-	RTBVoltageSensor( const uint8_t pin, float coeff ) :
-	  _pin(pin), _coeff(coeff) {
-	}
-	virtual void setup() {
-		pinMode(_pin,INPUT);
-	};
-	virtual void sense() {
-		_voltage = analogRead(_pin) / _coeff;
-	};
-	float voltage() const {
-		return _voltage;
-	}
+	RTBVoltageSensor( uint8_t pin, float coeff );
+	virtual void setup();
+	virtual void sense();
+	float voltage() const;
   private:
 	const uint8_t _pin;
 	const float _coeff;
@@ -58,18 +42,10 @@ class RTBVoltageSensor : public RTBSensor {
 
 class RTBCurrentSensor : public RTBSensor {
   public:
-	RTBCurrentSensor( const uint8_t pin, float coeff, float offset ) :
-	  _pin(pin), _coeff(coeff), _offset(offset) {
-	}
-	virtual void setup() {
-		pinMode(_pin,INPUT);
-	};
-	virtual void sense() {
-		_current = ( analogRead(_pin) - _offset ) / _coeff;  // TODO:  flip signs? 
-	};
-	float current() const {
-		return _current;
-	}
+	RTBCurrentSensor( uint8_t pin, float coeff, float offset );
+	virtual void setup();
+	virtual void sense();
+	float current() const;
   private:
 	const uint8_t _pin;
 	const float _coeff;
@@ -85,15 +61,9 @@ class RTBActuator {
 
 class RTBLed : public RTBActuator {
   public:
-	RTBLed( const uint8_t pin, uint8_t state=LOW ) :
-	  _pin(pin), _state(state) {
-	}
-	virtual void setup() {
-		pinMode(_pin,OUTPUT);
-	}
-	virtual void actuate() {
-		digitalWrite( _pin, _state );
-	}
+	RTBLed( uint8_t pin, uint8_t state=LOW );
+	virtual void setup();
+	virtual void actuate();
   private:
 	const uint8_t _pin;
 	uint8_t _state;
@@ -101,15 +71,9 @@ class RTBLed : public RTBActuator {
 
 class RTBRelay : public RTBActuator {
   public:
-	RTBRelay( const uint8_t pin, uint8_t state=LOW ) :
-	  _pin(pin), _state(state) {
-	}
-	virtual void setup() {
-		pinMode(_pin,OUTPUT);
-	};
-	virtual void actuate() {
-		digitalWrite( _pin, _state );
-	};
+	RTBRelay( uint8_t pin, uint8_t state=LOW );
+	virtual void setup();
+	virtual void actuate();
   private:
 	const uint8_t _pin;
 	uint8_t _state;
@@ -117,26 +81,16 @@ class RTBRelay : public RTBActuator {
 
 class RTBSafetyRelay : public RTBRelay {
   public:
-	RTBSafetyRelay( const uint8_t pin, float thresholdsetc, uint8_t state=LOW ) :
-	  RTBRelay(pin,state), _thresholdsetc(thresholdsetc) {
-	}
+	RTBSafetyRelay( uint8_t pin, float thresholdsetc, uint8_t state=LOW );
   private:
 	const int _thresholdsetc;
 };
 
 class RTBPowerLatch : public RTBActuator {
   public:
-	RTBPowerLatch( const uint8_t pin ) :
-	  _pin(pin), _state(true) {
-	}
-	virtual void setup() {
-		pinMode(_pin,OUTPUT);
-		// ensure our power stays on as soon as we can
-		actuate();
-	}
-	virtual void actuate() {
-		digitalWrite( _pin, _state );
-	}
+	RTBPowerLatch( uint8_t pin );
+	virtual void setup();
+	virtual void actuate();
   private:
 	const uint8_t _pin;
 	bool _state;
