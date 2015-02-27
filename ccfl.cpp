@@ -5,6 +5,7 @@ Ccfl::Ccfl( uint8_t sense_pin, uint8_t actuate_pin,
 : _sense_pin(sense_pin), _actuate_pin(actuate_pin),
 	_ideal_full_current(ideal_full_current), _max_pwm(max_pwm),
 	_pwm_for_full_brightness(INITIAL_PWM_FOR_FULL_BRIGHTNESS),
+	_wavegen(NULL), 
 	_pat_brightness(1)
 {
 }
@@ -25,10 +26,13 @@ void Ccfl::sense() {
 	refine_pwm_for_full_brightness();
 }
 void Ccfl::actuate() {
+	if( _wavegen )
+#define DELAYFACTOR 64
+		_pat_brightness = _wavegen->gen(millis()/DELAYFACTOR);
 	analogWrite( _actuate_pin, _pwm_for_full_brightness*_pat_brightness );
 }
-void Ccfl::set_pat_brightness( float pat_brightness ) {
-	_pat_brightness = pat_brightness;
+void Ccfl::set_wave_generator( WaveGenerator* wavegen ) {
+	_wavegen = wavegen;
 }
 
 PidCcfl::PidCcfl( uint8_t sense_pin, uint8_t actuate_pin,
