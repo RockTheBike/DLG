@@ -55,12 +55,14 @@ void PidCcfl::refine_pwm_for_full_brightness() {
 	  _kp * error +
 	  _ki * _integrated_error +
 	  _kd * deriv_error;
+#ifndef DISABLE_CCFL_FEEDBACK
 	if( new_pwm > MAX_PWM )
 		_pwm_for_full_brightness = MAX_PWM;
 	else if( new_pwm < MIN_PWM )
 		_pwm_for_full_brightness = MIN_PWM;
 	else
 		_pwm_for_full_brightness = new_pwm;
+#endif
 }
 
 #ifdef SERIAL_INTERACT
