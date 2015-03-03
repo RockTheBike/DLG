@@ -37,6 +37,9 @@ bool State::preempt( WORLD_PARAMS ) {
 	return NULL;
 }
 
+const char* StartingState::name() {
+	return "starting";
+}
 State* StartingState::transition( WORLD_PARAMS ) { 
 	return this;  // TODO 
 } 

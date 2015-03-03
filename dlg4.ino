@@ -27,6 +27,12 @@ void report( State* prev_state, State* next_state, WORLD_PARAMS ) {
 	Serial.print( now/1000/60 );
 	Serial.print( ':' );
 	Serial.print( now/1000%60 );  // TODO "%02d"
+	Serial.print( ' ' );
+	Serial.print( next_state->name() );
+	if( next_state != prev_state ) {
+		Serial.print( "<-" );
+		Serial.print( prev_state->name() );
+	}
 #ifdef SERIAL_INTERACT
 	Serial.print( ' ' );
 	battery_pack.report( Serial );
@@ -36,7 +42,7 @@ void report( State* prev_state, State* next_state, WORLD_PARAMS ) {
 	Serial.println();
 }
 void maybe_report( State* prev_state, State* next_state, WORLD_PARAMS ) {
-	if( now < next_report ) return;
+	if( now < next_report && prev_state==next_state ) return;
 	report( prev_state, next_state, WORLD_ARGS );
 	next_report += REPORT_INTERVAL + ( next_report ? 0 : now );
 }

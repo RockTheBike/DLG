@@ -7,6 +7,7 @@
 
 class State {
   public:
+	virtual const char* name() = 0;
 	// a chance to claim control outside normal operation
 	virtual bool preempt( WORLD_PARAMS );
 	// decide the next step based on the world, do any transition side effects if state differs
@@ -17,6 +18,7 @@ class State {
 };
 
 class StartingState : public State { 
+	virtual const char* name(); 
 	State* transition( WORLD_PARAMS ); 
 	void set_outputs( WORLD_PARAMS ); 
 	void enter_state( WORLD_PARAMS ); 
