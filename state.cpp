@@ -22,6 +22,17 @@ wavet_t synco_lubdub_times[] = {   50, 250,  300, 350, 500, 700,  1000  };
 WaveGenerator synco_lubdub( sizeof(synco_lubdub_levels)/sizeof(*synco_lubdub_levels),
   synco_lubdub_levels, synco_lubdub_times);
 
+// lightsaber in heartbeat
+float  lightsaber_lubdub_levels[] = {  1.0, 0.0,  0.0, 1.0, 1.0, 0.25, 0.0,   0.0  };
+wavet_t lightsaber_lubdub_times[] = {   50, 250,  300, 350, 500,  501, 800,  1100  };
+WaveGenerator lightsaber_lubdub( sizeof(lightsaber_lubdub_levels)/sizeof(*lightsaber_lubdub_levels),
+  lightsaber_lubdub_levels, lightsaber_lubdub_times);
+
+float  flat_line_levels[] = { 0.0, 0.0 };
+wavet_t flat_line_times[] = {   1,   2 };
+WaveGenerator flat_line( sizeof(flat_line_levels)/sizeof(*flat_line_levels),
+  flat_line_levels, flat_line_times);
+
 bool State::preempt( WORLD_PARAMS ) {
 	return NULL;
 }
