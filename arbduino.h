@@ -62,6 +62,22 @@ class RTBActuator {
 	virtual void actuate() = 0;
 };
 
+class RTBLed : public RTBActuator {
+  public:
+	RTBLed( const uint8_t pin, uint8_t state=LOW ) :
+	  _pin(pin), _state(state) {
+	}
+	virtual void setup() {
+		pinMode(_pin,OUTPUT);
+	}
+	virtual void actuate() {
+		digitalWrite( _pin, _state );
+	}
+  private:
+	const uint8_t _pin;
+	uint8_t _state;
+};
+
 class RTBAddressableLedStrip : public RTBActuator {
   public:
 	RTBAddressableLedStrip( const uint8_t pin, int length ) :
@@ -114,4 +130,22 @@ class RTBSafetyRelay : public RTBRelay {
 	}
   private:
 	const int _thresholdsetc;
+};
+
+class RTBPowerLatch : public RTBActuator {
+  public:
+	RTBPowerLatch( const uint8_t pin ) :
+	  _pin(pin), _state(true) {
+	}
+	virtual void setup() {
+		pinMode(_pin,OUTPUT);
+		// ensure our power stays on as soon as we can
+		actuate();
+	}
+	virtual void actuate() {
+		digitalWrite( _pin, _state );
+	}
+  private:
+	const uint8_t _pin;
+	bool _state;
 };

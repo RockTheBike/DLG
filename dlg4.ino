@@ -3,17 +3,15 @@
 #include "arbduino.h"
 
 // sensors
-RTBButton button( somepin );
+RTBButton button( 2 );
 
 // combo sensor+actuators
-#define AMPCOEFF 8.0682 // 583 - 512 = 71; 71 / 8.8 amps = 8.0682 
-#define AMPOFFSET 512.0 // when current sensor is at 0 amps this is the ADC value 
-#define IDEAL_FULL_CURRENT guess 
-RTBCcfl ccfl( somepin, somepin, AMPCOEFF, AMPOFFSET, IDEAL_FULL_CURRENT ); 
+#define IDEAL_FULL_CURRENT 450
+Ccfl ccfl( A6, 5, IDEAL_FULL_CURRENT );
 
 // actuators
 RTBLed signal_led( somepin );
-RTBPowerLock power_lock( somepin );
+RTBPowerLatch power_latch( 4 );
 
 
 
