@@ -1,85 +1,34 @@
 #define VERSION "Rock the Bike DLG 4.0"
 
-#include "arbduino.h"
+#include "dlg4.h"
+#include "state.h"
+#include "ccfl.h"
 
-// sensors
-RTBButton button( 2 );
 
-// combo sensor+actuators
+// sensors and actuators
 #define IDEAL_FULL_CURRENT 450
-Ccfl ccfl( A6, 5, IDEAL_FULL_CURRENT );
-
-// actuators
-RTBLed signal_led( somepin );
+#define MAX_PWM 250
+Ccfl ccfl( A6, 5, IDEAL_FULL_CURRENT, MAX_PWM );
+RTBButton button( 2 );
+RTBLed signal_led( 7 );
 RTBPowerLatch power_latch( 4 );
 
 
-
-#define WORLD_PARAMS \
-  millitime_t now, \
-  float ccfl_current, \
-  float button
-
-#define WORLD_ARGS \
-  now, \
-  ccfl_current, \
-  button
-
-#define WORLD_VALUES \
-  now, \
-  ccfl_current.current(), \
-  button.state()
-
-class State {
-  public:
-	// a chance to claim control outside normal operation
-	virtual bool preempt( WORLD_PARAMS );
-	// decide the next step based on the world, do any transition side effects if state differs
-	virtual State* transition( WORLD_PARAMS ) = 0;
-	// get ready to change the world
-	virtual void set_outputs( WORLD_PARAMS ) = 0;
-	virtual void enter_state( WORLD_PARAMS ) = 0;
-};
-bool State::preempt( WORLD_PARAMS ) {
-	return NULL;
-}
-
-class StartingState : public State { 
-	State* transition( WORLD_PARAMS ); 
-	void set_outputs( WORLD_PARAMS ); 
-	void enter_state( WORLD_PARAMS ); 
-} starting_state; 
-State* StartingState::transition( WORLD_PARAMS ) { 
-	return this;  // TODO 
-} 
-void StartingState::set_outputs( WORLD_PARAMS ) { 
-	// TODO 
-	static const color_t colors[] = { 
-	  Adafruit_NeoPixel::Color(255,0,0), 
-	  Adafruit_NeoPixel::Color(255,255,0), 
-	  Adafruit_NeoPixel::Color(0,255,0), 
-	  Adafruit_NeoPixel::Color(0,255,255), 
-	  Adafruit_NeoPixel::Color(0,0,255), 
-	  Adafruit_NeoPixel::Color(255,0,255) }; 
-	indicatorled.setBrightness( 8 ); 
-#define NUM_COLORS (sizeof(colors)/sizeof(*colors)) 
-	indicatorled.setPixelColor( 0, colors[now/200%NUM_COLORS] ); 
-} 
-void StartingState::enter_state( WORLD_PARAMS ) {} 
-
-
+// the state machine
+StartingState starting_state;
 State* current_state = &starting_state;
 
 
+// reporting
 #define REPORT_INTERVAL 1000
 millitime_t next_report = 0;
-void report( State* prev_state, State* next_state, millitime_t now, float ccfl_current, float button ) {
+void report( State* prev_state, State* next_state, WORLD_PARAMS ) {
 	Serial.print( now/1000/60 );
 	Serial.print( ':' );
 	Serial.print( now/1000%60 );  // TODO "%02d"
 	Serial.println( "A" ); 
 }
-void maybe_report( State* prev_state, State* next_state, millitime_t now, float ccfl_current, float button ) {
+void maybe_report( State* prev_state, State* next_state, WORLD_PARAMS ) {
 	if( now < next_report ) return;
 	report( prev_state, next_state, WORLD_ARGS );
 	next_report += REPORT_INTERVAL + ( next_report ? 0 : now );

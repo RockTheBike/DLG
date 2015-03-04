@@ -3,7 +3,6 @@
 // but we don't want to compile it
 #if 0
 
-#define LED_PIN      7  // PD7/7
 #define CHARGE123    9  // PB1/9 prototype
 #define DRAIN1       11 // PB3/11 prototype
 #define DRAIN2       3  // PD3/3

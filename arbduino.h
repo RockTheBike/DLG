@@ -1,5 +1,7 @@
-#include "arduino.h"
-#include <Adafruit_NeoPixel.h>
+#ifndef _INC_ARBDUINO_H
+#define _INC_ARBDUINO_H
+
+#include <arduino.h>
 
 
 // descriptive types
@@ -13,6 +15,25 @@ class RTBSensor {
   public:
 	virtual void setup() = 0;
 	virtual void sense() = 0;
+};
+
+class RTBButton : public RTBSensor {
+  public:
+	RTBButton( const uint8_t pin ) :
+	  _pin(pin) {
+	}
+	virtual void setup() {
+		pinMode(_pin,INPUT);
+	};
+	virtual void sense() {
+		_state = digitalRead(_pin);
+	};
+	bool state() const {
+		return _state;
+	}
+  private:
+	const uint8_t _pin;
+	bool _state;
 };
 
 class RTBVoltageSensor : public RTBSensor {
@@ -78,35 +99,6 @@ class RTBLed : public RTBActuator {
 	uint8_t _state;
 };
 
-class RTBAddressableLedStrip : public RTBActuator {
-  public:
-	RTBAddressableLedStrip( const uint8_t pin, int length ) :
-	  neopixel(length,pin,NEO_GRB|NEO_KHZ800), _length(length) {
-	}
-	virtual void setup() {
-		neopixel.begin();
-		neopixel.show(); // Initialize all pixels to 'off'
-	}
-	virtual void actuate() {
-		neopixel.show();
-	}
-	void setPixelColor( uint16_t n, uint8_t r, uint8_t g, uint8_t b ) {
-		neopixel.setPixelColor(n, r,g,b );
-	}
-	void setPixelColor( uint16_t n, uint32_t c ) {
-		neopixel.setPixelColor(n,c);
-	}
-	void setBrightness(uint8_t b) {
-		neopixel.setBrightness(b);
-	}
-	void clear() {
-		neopixel.clear();
-	};
-  private:
-	Adafruit_NeoPixel neopixel;
-	const int _length;
-};
-
 class RTBRelay : public RTBActuator {
   public:
 	RTBRelay( const uint8_t pin, uint8_t state=LOW ) :
@@ -149,3 +141,5 @@ class RTBPowerLatch : public RTBActuator {
 	const uint8_t _pin;
 	bool _state;
 };
+
+#endif
