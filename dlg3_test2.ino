@@ -11,24 +11,15 @@
 #define B1THERM      A0
 #define B2THERM      A1
 #define B3THERM      A2
-#define B1P          A3
-#define B2P          A4
-#define BATTERY      A5
 #define JACK_SENSE   A7
 
-#define B1P_COEFF     203.518 // ADC counts per volt
-#define B2P_COEFF     122.460
-#define BATTERY_COEFF 81.936
-#define BATT_EMPTY   2.95 // how many volts to DIE at
 
 int offCount = 0;  // counts how many off requests we've seen
 #define OFF_THRESH 5 // how many to make us turn off
 #define DELAYFACTOR 64 // millis() and delay() this many times faster  [fake/real]
-float batt1,batt2,batt3; // voltage of battery cells
 
 void loop() {
 
-  getBattVoltages();
   printAnalogs();
 
   if (batt1 < BATT_EMPTY) die("batt1 dead! ");
@@ -53,12 +44,6 @@ float averageRead(int pin) {
   for (int i = 0; i < READ_MULTITUDE; i++) analogAdder += analogRead(pin);
   analogAdder /= READ_MULTITUDE;
   return analogAdder;
-}
-
-void getBattVoltages() {
-  batt1 = averageRead(B1P) / B1P_COEFF;
-  batt2 = (averageRead(B2P) / B2P_COEFF) - batt1;
-  batt3 = (averageRead(BATTERY) / BATTERY_COEFF) - batt2 - batt1;
 }
 
 #endif

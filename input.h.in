@@ -15,6 +15,14 @@
 // how many times to read the current (or maybe just how long we need to wait)
 #define READ_MULTITUDE 10
 
+// the hardware of the battery:
+#define FULL_BATTERY A5
+#define B1P          A3
+#define B2P          A4
+#define B1P_COEFF     203.518 // ADC counts per volt
+#define B2P_COEFF     122.460
+#define BATTERY_COEFF 81.936
+#define BATT_EMPTY    2.95
 
 // serial interaction
 #define SERIAL_INTERACT

@@ -2,10 +2,12 @@
 
 #include "dlg4.h"
 #include "state.h"
+#include "battpack.h"
 #include "ccfl.h"
 
 
 // sensors and actuators
+BatteryPack battery_pack;
 PidCcfl ccfl( CCFL_CURRENT_SENSE, CCFL_PIN, IDEAL_FULL_CURRENT, MAX_PWM, KP, KI, KD );
 RTBButton button( 2 );
 RTBLed signal_led( 7 );
@@ -26,6 +28,8 @@ void report( State* prev_state, State* next_state, WORLD_PARAMS ) {
 	Serial.print( ':' );
 	Serial.print( now/1000%60 );  // TODO "%02d"
 #ifdef SERIAL_INTERACT
+	Serial.print( ' ' );
+	battery_pack.report( Serial );
 	Serial.print( ' ' );
 	ccfl.report( Serial );
 #endif
@@ -69,6 +73,7 @@ void loop() {
 	millitime_t now = millis()/DELAYFACTOR;
 	button.sense();
 	ccfl.sense();
+	battery_pack.sense();
 
 	// decide what state to transition to
 	// (and let outgoing state relinquish stuff etc)
@@ -79,6 +84,7 @@ void loop() {
 
 	// change the world
 	ccfl.actuate();
+	battery_pack.sense();
 	signal_led.actuate();
 	power_latch.actuate();
 
