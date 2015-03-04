@@ -10,7 +10,7 @@ class Ccfl : public RTBSensor, public RTBActuator {
 	virtual void setup();
 	virtual void sense();
 	virtual void actuate();
-	uint8_t actual_pat_current();
+	void set_pat_brightness( float pat_brightness );
   private:
 	void refine_pwm_for_full_brightness();
 	const uint8_t _sense_pin;  // current sensor
@@ -19,6 +19,7 @@ class Ccfl : public RTBSensor, public RTBActuator {
 	const uint8_t _max_pwm;  // hard limit to protect hardware
 	uint16_t _actual_pat_current;  // measured current (affected by pattern)
 	uint8_t _pwm_for_full_brightness;  // estimate of PWM to get full brightness
+	float _pat_brightness;
 };
 
 #endif

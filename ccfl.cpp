@@ -6,7 +6,8 @@ Ccfl::Ccfl( uint8_t sense_pin, uint8_t actuate_pin,
 	uint16_t ideal_full_current, uint8_t max_pwm )
 : _sense_pin(sense_pin), _actuate_pin(actuate_pin),
 	_ideal_full_current(ideal_full_current), _max_pwm(max_pwm),
-	_pwm_for_full_brightness(INITIAL_PWM_FOR_FULL_BRIGHTNESS)
+	_pwm_for_full_brightness(INITIAL_PWM_FOR_FULL_BRIGHTNESS),
+	_pat_brightness(1)
 {
 }
 void Ccfl::setup() {
@@ -26,13 +27,13 @@ void Ccfl::sense() {
 #endif
 }
 void Ccfl::actuate() {
-	float pat_brightness = 1;  // TODO implement
-	analogWrite( _actuate_pin, _pwm_for_full_brightness*pat_brightness );
+	analogWrite( _actuate_pin, _pwm_for_full_brightness*_pat_brightness );
 }
-uint8_t Ccfl::actual_pat_current() {
-	return _actual_pat_current;
+void Ccfl::set_pat_brightness( float pat_brightness ) {
+	_pat_brightness = pat_brightness;
 }
 void Ccfl::refine_pwm_for_full_brightness() {
 #define MAX_PWM 250 
 #define jumpVal 1 
+	// TODO:  based on _pat_brightness and _actual_pat_current
 }

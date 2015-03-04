@@ -5,22 +5,23 @@
 
 #define WORLD_PARAMS \
   millitime_t now, \
-  float ccfl_current, \
+  uint32_t loopcount, \
   bool button
 
 #define WORLD_ARGS \
   now, \
-  ccfl_current, \
+  loopcount, \
   button
 
 #define WORLD_VALUES \
   now, \
-  ccfl.actual_pat_current(), \
+  loopcount, \
   button.state()
 
 class State;
 
 void setup();
+void setup_frequencies();
 void loop();
 void maybe_report( State* prev_state, State* next_state, WORLD_PARAMS );
 void report( State* prev_state, State* next_state, WORLD_PARAMS );

@@ -25,20 +25,6 @@ int offCount = 0;  // counts how many off requests we've seen
 #define OFF_THRESH 5 // how many to make us turn off
 #define DELAYFACTOR 64 // millis() and delay() this many times faster  [fake/real]
 float batt1,batt2,batt3; // voltage of battery cells
-unsigned long tickcount = 0;
-
-void setup() {
-
-// setPwmFrequency(CCFL_PIN,1); // set PWM freq to 31,250 Hz
-// WGM02 = 0, WGM01 = 1, WGM00 = 1 see page 108
-// COM0B1 = 1, COM0B0 = 0 see page 107
-// CS02 = 0, CS01 = 0, CS00 = 1 see page 110
-  CLKPR = 0x80;  // enable write to clkps see page 37
-  CLKPR = 0x00;  // set divisor to 1  see page 38
-  TCCR0A = 0b10100011;
-  TCCR0B = 0b00000001;
-  Serial.begin(76800); // to get 38400 baud, put 76800 baud here
-}
 
 void loop() {
   // TODO:  do we want a full PID system here?

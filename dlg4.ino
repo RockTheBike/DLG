@@ -23,10 +23,12 @@ State* current_state = &starting_state;
 #define REPORT_INTERVAL 1000
 millitime_t next_report = 0;
 void report( State* prev_state, State* next_state, WORLD_PARAMS ) {
+	Serial.print( loopcount );
+	Serial.print( "loops " );
 	Serial.print( now/1000/60 );
 	Serial.print( ':' );
 	Serial.print( now/1000%60 );  // TODO "%02d"
-	Serial.println( "A" ); 
+	Serial.println( "   i'm alive" ); 
 }
 void maybe_report( State* prev_state, State* next_state, WORLD_PARAMS ) {
 	if( now < next_report ) return;
@@ -37,7 +39,8 @@ void maybe_report( State* prev_state, State* next_state, WORLD_PARAMS ) {
 
 void setup() {
 
-	Serial.begin(57600);
+	setup_frequencies();
+
 	Serial.println(VERSION);
 
 	power_latch.setup();  // ensure our power stays on as soon as we can
@@ -47,11 +50,22 @@ void setup() {
 
 }
 
+#define DELAYFACTOR 64
+void setup_frequencies() {
+	// mostly taken from Jake's dlg3_test2.ino without full comprehension
+	CLKPR = 0x80;  // enable write to clkps see page 37
+	CLKPR = 0x00;  // set divisor to 1  see page 38
+	TCCR0A = 0b10100011;
+	TCCR0B = 0b00000001;
+#define SERIAL_SPEED_ADJUSTMENT 2  // not sure why
+	Serial.begin( 38400 * SERIAL_SPEED_ADJUSTMENT );
+}
 
+uint32_t loopcount = 0;
 void loop() {
 
 	// look at the world
-	millitime_t now = millis();
+	millitime_t now = millis()/DELAYFACTOR;
 	button.sense();
 	ccfl.sense();
 
@@ -71,5 +85,6 @@ void loop() {
 	maybe_report( current_state, next_state, WORLD_VALUES );
 
 	current_state = next_state;
+	loopcount++;
 
 }
