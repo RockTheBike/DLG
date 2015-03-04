@@ -8,7 +8,10 @@
 // sensors and actuators
 #define IDEAL_FULL_CURRENT 450
 #define MAX_PWM 250
-Ccfl ccfl( A6, 5, IDEAL_FULL_CURRENT, MAX_PWM );
+#define KP 0.01
+#define KI 0.001
+#define KD 0.0
+PidCcfl ccfl( A6, 5, IDEAL_FULL_CURRENT, MAX_PWM, KP, KI, KD );
 RTBButton button( 2 );
 RTBLed signal_led( 7 );
 RTBPowerLatch power_latch( 4 );

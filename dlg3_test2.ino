@@ -27,21 +27,6 @@ int offCount = 0;  // counts how many off requests we've seen
 float batt1,batt2,batt3; // voltage of battery cells
 
 void loop() {
-  // TODO:  do we want a full PID system here?
-
-  // what we should see with pwm_for_max_brightness perfectly calibrated to ideal_max_current
-  float ideal_instantaneous_current = ideal_max_current * SOME_FACTOR * pattern_brightness*pattern_brightness;
-
-  if (senseRead < ideal_instantaneous_current) {
-    digitalWrite(LED_PIN,HIGH);  // LED ON
-    actual pwm_for_max_brightness += jumpVal;
-    if (pwm_for_max_brightness > MAX_PWM) pwm_for_max_brightness = MAX_PWM;
-  }
-  if (senseRead > ideal_instantaneous_current) {
-    digitalWrite(LED_PIN,LOW);  // LED OFF
-    pwm_for_max_brightness -= jumpVal;
-    if (pwm_for_max_brightness < 1) pwm_for_max_brightness = 1;
-  }
 
   getBattVoltages();
   printAnalogs();

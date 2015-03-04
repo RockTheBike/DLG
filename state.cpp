@@ -1,7 +1,7 @@
 #include "state.h"
 #include "ccfl.h"
 
-extern Ccfl ccfl;
+extern PidCcfl ccfl;
 
 bool State::preempt( WORLD_PARAMS ) {
 	return NULL;
@@ -22,6 +22,8 @@ void StartingState::set_outputs( WORLD_PARAMS ) {
 	  t < 1300 ? 0.3 :
 	  t < 1400 ? 0.5 :
 	  1;
+#ifdef ENABLE_PATTERN
 	ccfl.set_pat_brightness( pattern );
+#endif
 }
 void StartingState::enter_state( WORLD_PARAMS ) {} 

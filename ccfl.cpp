@@ -25,6 +25,7 @@ void Ccfl::sense() {
 #else
 	_actual_pat_current = analogRead(_sense_pin);
 #endif
+	refine_pwm_for_full_brightness();
 }
 void Ccfl::actuate() {
 	analogWrite( _actuate_pin, _pwm_for_full_brightness*_pat_brightness );
@@ -32,8 +33,33 @@ void Ccfl::actuate() {
 void Ccfl::set_pat_brightness( float pat_brightness ) {
 	_pat_brightness = pat_brightness;
 }
-void Ccfl::refine_pwm_for_full_brightness() {
-#define MAX_PWM 250 
-#define jumpVal 1 
-	// TODO:  based on _pat_brightness and _actual_pat_current
+
+PidCcfl::PidCcfl( uint8_t sense_pin, uint8_t actuate_pin,
+  uint16_t ideal_full_current, uint8_t max_pwm,
+  float kp, float ki, float kd )
+: Ccfl( sense_pin, actuate_pin, ideal_full_current, max_pwm ),
+  _kp(kp), _ki(ki), _kd(kd), _integrated_error(0), _prev_error(0)
+{
+}
+
+#define MAX_PWM 250
+#define MIN_PWM 1
+void PidCcfl::refine_pwm_for_full_brightness() {
+	if( _pat_brightness < 0.95 )  return;
+	// TODO:  scale properly according to pattern (instead of skipping when pattern isn't full)
+	uint16_t unpat_current = _actual_pat_current/_pat_brightness;  // a first approximation 
+	int16_t error = (int16_t)_ideal_full_current - unpat_current;
+	_integrated_error += error;
+	int16_t deriv_error = error - _prev_error;
+	_prev_error = error;
+	int16_t new_pwm = _pwm_for_full_brightness +
+	  _kp * error +
+	  _ki * _integrated_error +
+	  _kd * deriv_error;
+	if( new_pwm > MAX_PWM )
+		_pwm_for_full_brightness = MAX_PWM;
+	else if( new_pwm < MIN_PWM )
+		_pwm_for_full_brightness = MIN_PWM;
+	else
+		_pwm_for_full_brightness = new_pwm;
 }
