@@ -18,6 +18,10 @@ void BatteryPack::actuate() {
 	// TODO:  control charging
 }
 
+float BatteryPack::lowest_voltage() const {
+	return min( _voltages[0], min( _voltages[1], _voltages[2] ) );
+}
+
 #ifdef SERIAL_INTERACT
 void BatteryPack::report( Stream& stream ) {
 	stream.print("v:");

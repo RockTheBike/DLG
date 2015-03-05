@@ -1,8 +1,8 @@
 #include "arbduino.h"
 
 
-RTBButton::RTBButton( uint8_t pin ) :
-  _pin(pin) {
+RTBButton::RTBButton( uint8_t pin, bool state ) :
+  _pin(pin), _state(state) {
 }
 void RTBButton::setup() {
 	pinMode(_pin,INPUT);
@@ -13,6 +13,36 @@ void RTBButton::sense() {
 bool RTBButton::state() const {
 	return _state;
 }
+
+
+RTBTimedButton::RTBTimedButton( uint8_t pin, bool state ) :
+  RTBButton(pin,state), _prev_state(state),
+  _time_of_last_press(0), _time_of_last_release(0) {
+}
+void RTBTimedButton::sense() {
+	_prev_state = _state;
+	RTBButton::sense();
+	if( _prev_state != _state ) {  // record the change
+#define DELAYFACTOR 64
+		millitime_t now = millis()/DELAYFACTOR;  // TODO:  get exact time from somewhere 
+		( _state ? _time_of_last_press : _time_of_last_release ) = now;
+	}
+}
+// if it was released just now, return duration of push, otherwise 0
+millitime_t RTBTimedButton::completed_push() const {
+	return !_state && _prev_state ?
+	  _time_of_last_release - _time_of_last_press : 0;
+}
+#ifdef HAVE_A_USE_YET_FOR_TIME_PUSHED
+millitime_t RTBTimedButton::time_pushed() const {
+	if( _state && _prev_state ) {  // still pushed
+	#define DELAYFACTOR 64
+		millitime_t now = millis()/DELAYFACTOR;  // TODO:  get exact time from somewhere
+		return _time_of_last_press - now;
+	} else
+		return 0;
+}
+#endif
 
 
 RTBVoltageSensor::RTBVoltageSensor( uint8_t pin, float coeff ) :
@@ -80,4 +110,10 @@ void RTBPowerLatch::setup() {
 }
 void RTBPowerLatch::actuate() {
 	digitalWrite( _pin, _state );
+}
+void RTBPowerLatch::on() {
+	_state = true;
+}
+void RTBPowerLatch::off() {
+	_state = false;
 }

@@ -19,13 +19,27 @@ class RTBSensor {
 
 class RTBButton : public RTBSensor {
   public:
-	RTBButton( uint8_t pin );
+	RTBButton( uint8_t pin, bool state=false );
 	virtual void setup();
 	virtual void sense();
 	bool state() const;
-  private:
+  protected:
 	const uint8_t _pin;
 	bool _state;
+};
+
+class RTBTimedButton : public RTBButton {
+  public:
+	RTBTimedButton( uint8_t pin, bool state=false );
+	virtual void sense();
+	millitime_t completed_push() const;
+#ifdef HAVE_A_USE_YET_FOR_TIME_PUSHED
+	millitime_t time_pushed() const;
+#endif
+  protected:
+	bool _prev_state;
+	millitime_t _time_of_last_press;
+	millitime_t _time_of_last_release;
 };
 
 class RTBVoltageSensor : public RTBSensor {
@@ -91,6 +105,8 @@ class RTBPowerLatch : public RTBActuator {
 	RTBPowerLatch( uint8_t pin );
 	virtual void setup();
 	virtual void actuate();
+	void on();
+	void off();
   private:
 	const uint8_t _pin;
 	bool _state;

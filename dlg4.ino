@@ -9,13 +9,13 @@
 // sensors and actuators
 BatteryPack battery_pack;
 PidCcfl ccfl( CCFL_CURRENT_SENSE, CCFL_PIN, IDEAL_FULL_CURRENT, MAX_PWM, KP, KI, KD );
-RTBButton button( 2 );
+RTBTimedButton button( 2 );
 RTBLed signal_led( 7 );
 RTBPowerLatch power_latch( 4 );
 
 
 // the state machine
-StartingState starting_state;
+extern StartingState starting_state;
 State* current_state = &starting_state;
 
 
@@ -33,6 +33,7 @@ void report( State* prev_state, State* next_state, WORLD_PARAMS ) {
 		Serial.print( "<-" );
 		Serial.print( prev_state->name() );
 	}
+	Serial.print( button_state ? " down" : " up" );
 #ifdef SERIAL_INTERACT
 	Serial.print( ' ' );
 	battery_pack.report( Serial );

@@ -16,6 +16,7 @@ class BatteryPack : public RTBSensor, public RTBActuator {
 	virtual void setup();
 	virtual void sense();
 	virtual void actuate();
+	float lowest_voltage() const;
 #ifdef SERIAL_INTERACT
 	void report( Stream& stream );
 #endif

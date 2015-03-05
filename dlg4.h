@@ -8,17 +8,23 @@
 #define WORLD_PARAMS \
   millitime_t now, \
   uint32_t loopcount, \
-  bool button
+  float lowest_batt_voltage, \
+  bool button_state, \
+  millitime_t button_completed_push
 
 #define WORLD_ARGS \
   now, \
   loopcount, \
-  button
+  lowest_batt_voltage, \
+  button_state, \
+  button_completed_push
 
 #define WORLD_VALUES \
   now, \
   loopcount, \
-  button.state()
+  battery_pack.lowest_voltage(), \
+  button.state(), \
+  button.completed_push()
 
 class State;
 
