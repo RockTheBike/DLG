@@ -22,6 +22,8 @@
 #define B1P_COEFF     203.518 // ADC counts per volt
 #define B2P_COEFF     122.460
 #define BATTERY_COEFF 81.936
+#define BATT_FULL     4  // TODO check
+#define BATT_LOW      3.6  // TODO check
 #define BATT_EMPTY    2.95
 
 // serial interaction

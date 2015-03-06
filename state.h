@@ -24,6 +24,13 @@ class StartingState : public State {
 	void enter_state( WORLD_PARAMS );
 };
 
+class LifesaverState : public State {
+	virtual const char* name();
+	State* transition( WORLD_PARAMS );
+	void set_outputs( WORLD_PARAMS );
+	void enter_state( WORLD_PARAMS );
+};
+
 class OffState : public State {
 	virtual const char* name();
 	State* transition( WORLD_PARAMS );

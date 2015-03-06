@@ -3,6 +3,7 @@
 #include "wavegen.h"
 
 StartingState starting_state;
+LifesaverState lifesaver_state;
 OffState off_state;
 
 extern PidCcfl ccfl;
@@ -79,8 +80,8 @@ const char* StartingState::name() {
 State* StartingState::transition( WORLD_PARAMS ) {
 	if( lowest_batt_voltage < BATT_EMPTY )
 		return &off_state;
-	//if( lowest_batt_voltage < BATT_LOW )
-		//return &life_saver_state;
+	if( lowest_batt_voltage < BATT_LOW )
+		return &lifesaver_state;
 	if( button_completed_push == 0 )  // not a push
 		return this;
 	if( button_completed_push < 50 ) {  // just (bouncy) noise
@@ -108,6 +109,34 @@ void StartingState::set_outputs( WORLD_PARAMS ) {
 }
 void StartingState::enter_state( WORLD_PARAMS ) {
 	ccfl.set_wave_generator( lightmodes[lightmode_index] );
+}
+
+
+const char* LifesaverState::name() {
+	return "lifesaver";
+}
+State* LifesaverState::transition( WORLD_PARAMS ) {
+	if( lowest_batt_voltage < BATT_EMPTY )
+		return &off_state;
+	if( button_completed_push == 0 )  // not a push
+		return this;
+	if( button_completed_push < 50 ) {  // just (bouncy) noise
+		Serial.println("ignored bounce");
+		return this;
+	}
+	if( button_completed_push < 1000 ) {
+		Serial.println("turning off.");
+		return &off_state;
+	}
+	// longer push is probably noise of eg shoving into backpack
+	// TODO:  but holding down should turn off
+	return this;
+}
+void LifesaverState::set_outputs( WORLD_PARAMS ) {
+	power_latch.on();
+}
+void LifesaverState::enter_state( WORLD_PARAMS ) {
+	ccfl.set_wave_generator( &lightsaber_lubdub );
 }
 
 
